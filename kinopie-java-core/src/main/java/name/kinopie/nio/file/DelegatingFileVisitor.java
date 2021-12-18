@@ -17,10 +17,10 @@ import name.kinopie.util.function.ThrowableFunction;
 import name.kinopie.util.function.ThrowablePredicate;
 
 @RequiredArgsConstructor
-public class DelegatingFileVisitor extends SimpleFileVisitor<Path> {
+public class DelegatingFileVisitor<WC extends FileTreeWalkContext> extends SimpleFileVisitor<Path> {
 
 	@NonNull
-	private final FileTreeWalkContext fileTreeWalkContext;
+	private final WC fileTreeWalkContext;
 
 	private Map<ThrowablePredicate<PreVisitContext>, ThrowableFunction<PreVisitContext, FileVisitResult>> onPreVisitDirectory = new LinkedHashMap<>();
 	private Map<ThrowablePredicate<PreVisitContext>, ThrowableFunction<PreVisitContext, FileVisitResult>> onVisitFile = new LinkedHashMap<>();
@@ -55,25 +55,25 @@ public class DelegatingFileVisitor extends SimpleFileVisitor<Path> {
 				FileVisitResult.SKIP_SUBTREE);
 	}
 
-	public DelegatingFileVisitor onPreVisitDirectory(ThrowablePredicate<PreVisitContext> predicate,
+	public DelegatingFileVisitor<WC> onPreVisitDirectory(ThrowablePredicate<PreVisitContext> predicate,
 			ThrowableFunction<PreVisitContext, FileVisitResult> function) {
 		onPreVisitDirectory.put(predicate, function);
 		return this;
 	}
 
-	public DelegatingFileVisitor onVisitFile(ThrowablePredicate<PreVisitContext> predicate,
+	public DelegatingFileVisitor<WC> onVisitFile(ThrowablePredicate<PreVisitContext> predicate,
 			ThrowableFunction<PreVisitContext, FileVisitResult> function) {
 		onVisitFile.put(predicate, function);
 		return this;
 	}
 
-	public DelegatingFileVisitor onVisitFileFailed(ThrowablePredicate<PostVisitContext> predicate,
+	public DelegatingFileVisitor<WC> onVisitFileFailed(ThrowablePredicate<PostVisitContext> predicate,
 			ThrowableFunction<PostVisitContext, FileVisitResult> function) {
 		onVisitFileFailed.put(predicate, function);
 		return this;
 	}
 
-	public DelegatingFileVisitor onPostVisitDirectory(ThrowablePredicate<PostVisitContext> predicate,
+	public DelegatingFileVisitor<WC> onPostVisitDirectory(ThrowablePredicate<PostVisitContext> predicate,
 			ThrowableFunction<PostVisitContext, FileVisitResult> function) {
 		onPostVisitDirectory.put(predicate, function);
 		return this;

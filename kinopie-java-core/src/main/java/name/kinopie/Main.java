@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import name.kinopie.nio.file.DefaultFileTreeWalkContext;
 import name.kinopie.nio.file.DelegatingFileVisitor;
 import name.kinopie.nio.file.FileTreeWalkContext;
 
@@ -13,8 +14,8 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 		Path start = Paths.get(".");
-		FileTreeWalkContext fileTreeWalkContext = new FileTreeWalkContext(start);
-		DelegatingFileVisitor visitor = new DelegatingFileVisitor(fileTreeWalkContext);
+		FileTreeWalkContext fileTreeWalkContext = new DefaultFileTreeWalkContext(start);
+		DelegatingFileVisitor<FileTreeWalkContext> visitor = new DelegatingFileVisitor<>(fileTreeWalkContext);
 		visitor.onPreVisitDirectory(context -> context.pathMatches("**/test/**"), context -> {
 			System.err.println(context.getPath());
 			return FileVisitResult.CONTINUE;

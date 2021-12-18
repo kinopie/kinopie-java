@@ -4,20 +4,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+public interface FileTreeWalkContext {
 
-@AllArgsConstructor
-@Getter
-public class FileTreeWalkContext {
-
-	private Path start;
-
-	public PreVisitContext createPreVisitContext(Path path, BasicFileAttributes attrs) {
+	default PreVisitContext createPreVisitContext(Path path, BasicFileAttributes attrs) {
 		return new PreVisitContext(this, path, attrs);
 	}
 
-	public PostVisitContext createPostVisitContext(Path path, IOException exc) {
+	default PostVisitContext createPostVisitContext(Path path, IOException exc) {
 		return new PostVisitContext(this, path, exc);
 	}
 }
