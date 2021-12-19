@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public interface FileTreeWalkContext {
+public interface FileTreeWalkContext<R extends FileVisitContext, O extends FileVisitContext> {
 
-	default PreVisitContext createPreVisitContext(Path path, BasicFileAttributes attrs) {
-		return new PreVisitContext(this, path, attrs);
-	}
+	Path getStart();
 
-	default PostVisitContext createPostVisitContext(Path path, IOException exc) {
-		return new PostVisitContext(this, path, exc);
-	}
+	R createPreVisitContext(Path path, BasicFileAttributes attrs);
+
+	O createPostVisitContext(Path path, IOException exc);
 }

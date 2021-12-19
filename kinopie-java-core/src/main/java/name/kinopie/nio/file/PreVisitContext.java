@@ -7,10 +7,11 @@ import lombok.Getter;
 
 @Getter
 public class PreVisitContext extends AbstractFileVisitContext {
+
 	private BasicFileAttributes attrs;
 
-	public PreVisitContext(FileTreeWalkContext fileTreeWalkContext, Path path, BasicFileAttributes attrs) {
-		super(fileTreeWalkContext, path);
+	public PreVisitContext(Path path, BasicFileAttributes attrs) {
+		super(path);
 		this.attrs = attrs;
 	}
 }

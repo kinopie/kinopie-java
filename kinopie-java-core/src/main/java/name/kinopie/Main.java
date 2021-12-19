@@ -8,24 +8,31 @@ import java.nio.file.Paths;
 
 import name.kinopie.nio.file.DefaultFileTreeWalkContext;
 import name.kinopie.nio.file.DelegatingFileVisitor;
-import name.kinopie.nio.file.FileTreeWalkContext;
 
 public class Main {
 
 	public static void main(String[] args) throws IOException {
 		Path start = Paths.get(".");
-		FileTreeWalkContext fileTreeWalkContext = new DefaultFileTreeWalkContext(start);
-		DelegatingFileVisitor<FileTreeWalkContext> visitor = new DelegatingFileVisitor<>(fileTreeWalkContext);
+		DefaultFileTreeWalkContext fileTreeWalkContext = new DefaultFileTreeWalkContext(start);
+		DelegatingFileVisitor visitor = new DelegatingFileVisitor(fileTreeWalkContext);
+
 		visitor.onPreVisitDirectory(context -> context.pathMatches("**/test/**"), context -> {
-			System.err.println(context.getPath());
+			System.err.println("pre:" + context.getPath());
 			return FileVisitResult.CONTINUE;
 		});
-		visitor.onVisitFile(context -> context.pathMatches("**/*.xml"), context -> {
-			System.err.println(context.getPath());
+
+		visitor.onVisitFile(context -> context.pathMatches("**/*.java"), context -> {
+			System.err.println("file:" + context.getPath());
 			System.err.println("--------------------------------------------------");
-			context.readAllLines().stream().forEach(System.out::println);
+			Files.readAllLines(context.getPath()).stream().forEach(System.out::println);
 			return FileVisitResult.CONTINUE;
 		});
+
+		visitor.onPostVisitDirectory(context -> context.pathMatches("**/main/**"), context -> {
+			System.err.println("post:" + context.getPath());
+			return FileVisitResult.CONTINUE;
+		});
+
 		Files.walkFileTree(start, visitor);
 	}
 }

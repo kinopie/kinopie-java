@@ -10,8 +10,8 @@ public class PostVisitContext extends AbstractFileVisitContext {
 
 	private IOException exc;
 
-	public PostVisitContext(FileTreeWalkContext fileTreeWalkContext, Path path, IOException exc) {
-		super(fileTreeWalkContext, path);
+	public PostVisitContext(Path path, IOException exc) {
+		super(path);
 		this.exc = exc;
 	}
 }
