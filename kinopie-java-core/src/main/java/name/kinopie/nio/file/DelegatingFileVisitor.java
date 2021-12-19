@@ -98,14 +98,25 @@ public class DelegatingFileVisitor<WC extends FileTreeWalkContext> extends Simpl
 			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions,
 			ThrowableBiFunction<Path, A, FileVisitResult> fallbackFunction, FileVisitResult... continueSubsequent)
 			throws IOException, Exception {
+		FileVisitResult result = doVisitWithPredicatedFunctions(path, arg, visitContextFactory, predicatedFunctions,
+				continueSubsequent);
+		if (result == null) {
+			return fallbackFunction.apply(path, arg);
+		}
+		return result;
+	}
+
+	private <A, C extends AbstractFileVisitContext> FileVisitResult doVisitWithPredicatedFunctions(Path path, A arg,
+			ThrowableBiFunction<Path, A, C> visitContextFactory,
+			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions,
+			FileVisitResult... continueSubsequent) throws IOException, Exception {
 		C visitContext = visitContextFactory.apply(path, arg);
-		FileVisitResult result = null;
 		for (Map.Entry<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> entry : predicatedFunctions
 				.entrySet()) {
 			ThrowablePredicate<C> predicate = entry.getKey();
 			if (predicate.test(visitContext)) {
 				ThrowableFunction<C, FileVisitResult> function = entry.getValue();
-				result = function.apply(visitContext);
+				FileVisitResult result = function.apply(visitContext);
 				if (ArrayUtils.contains(continueSubsequent, result)) {
 					continue;
 				} else {
@@ -113,9 +124,6 @@ public class DelegatingFileVisitor<WC extends FileTreeWalkContext> extends Simpl
 				}
 			}
 		}
-		if (result == null) {
-			return fallbackFunction.apply(path, arg);
-		}
-		return result;
+		return null;
 	}
 }
