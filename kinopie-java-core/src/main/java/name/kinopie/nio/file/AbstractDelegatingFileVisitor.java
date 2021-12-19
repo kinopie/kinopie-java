@@ -17,7 +17,7 @@ import name.kinopie.util.function.ThrowableFunction;
 import name.kinopie.util.function.ThrowablePredicate;
 
 @RequiredArgsConstructor
-public abstract class AbstractDelegatingFileVisitor<R extends FileVisitContext, O extends FileVisitContext, F extends FileTreeWalkContext<R, O>>
+public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O extends PostVisitContext, F extends FileTreeWalkContext<R, O>>
 		extends SimpleFileVisitor<Path> {
 
 	@NonNull

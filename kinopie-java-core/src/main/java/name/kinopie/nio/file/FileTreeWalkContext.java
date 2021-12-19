@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public interface FileTreeWalkContext<R extends FileVisitContext, O extends FileVisitContext> {
+public interface FileTreeWalkContext<R extends PreVisitContext, O extends PostVisitContext> {
 
 	Path getStart();
 

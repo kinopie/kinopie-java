@@ -6,5 +6,5 @@ public interface FileVisitContext {
 
 	Path getPath();
 
-	boolean pathMatches(String... antPathPatterns);
+	boolean pathAnyMatch(String... antPathPatterns);
 }
