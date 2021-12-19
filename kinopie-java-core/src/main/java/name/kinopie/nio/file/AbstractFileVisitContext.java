@@ -14,7 +14,7 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 	private final Path path;
 
 	@Override
-	public boolean pathAnyMatch(String... antPathPatterns) {
+	public boolean pathMatchesAny(String... antPathPatterns) {
 		return PathUtils.anyMatch(path, antPathPatterns);
 	}
 }

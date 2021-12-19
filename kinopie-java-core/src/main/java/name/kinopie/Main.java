@@ -14,19 +14,19 @@ public class Main {
 		Path start = Paths.get(".");
 		DelegatingFileVisitor visitor = new DelegatingFileVisitor(start);
 
-		visitor.onPreVisitDirectory(context -> context.pathAnyMatch("**/test/**"), context -> {
+		visitor.onPreVisitDirectory(context -> context.pathMatchesAny("**/test/**"), context -> {
 			System.err.println("pre:" + context.getPath());
 			return FileVisitResult.CONTINUE;
 		});
 
-		visitor.onVisitFile(context -> context.pathAnyMatch("**/*.java"), context -> {
+		visitor.onVisitFile(context -> context.pathMatchesAny("**/*.java"), context -> {
 			System.err.println("file:" + context.getPath());
 			System.err.println("--------------------------------------------------");
 			Files.readAllLines(context.getPath()).stream().forEach(System.out::println);
 			return FileVisitResult.CONTINUE;
 		});
 
-		visitor.onPostVisitDirectory(context -> context.pathAnyMatch("**/main/**"), context -> {
+		visitor.onPostVisitDirectory(context -> context.pathMatchesAny("**/main/**"), context -> {
 			System.err.println("post:" + context.getPath());
 			return FileVisitResult.CONTINUE;
 		});
