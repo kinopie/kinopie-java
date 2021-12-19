@@ -107,18 +107,19 @@ public abstract class AbstractDelegatingFileVisitor<R extends FileVisitContext, 
 			ThrowableBiFunction<Path, A, C> visitContextFactory,
 			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions,
 			FileVisitResult... continueSubsequent) throws Exception {
+		FileVisitResult result = null;
 		C visitContext = visitContextFactory.apply(path, arg);
 		for (Map.Entry<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> entry : predicatedFunctions
 				.entrySet()) {
 			ThrowablePredicate<C> predicate = entry.getKey();
 			if (predicate.test(visitContext)) {
 				ThrowableFunction<C, FileVisitResult> function = entry.getValue();
-				FileVisitResult result = function.apply(visitContext);
+				result = function.apply(visitContext);
 				if (!ArrayUtils.contains(continueSubsequent, result)) {
 					return result;
 				}
 			}
 		}
-		return null;
+		return result;
 	}
 }
