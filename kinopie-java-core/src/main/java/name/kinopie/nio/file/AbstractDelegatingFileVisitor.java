@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import name.kinopie.util.function.ThrowablePredicate;
 public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O extends PostVisitContext, F extends FileTreeWalkContext<R, O>>
 		extends SimpleFileVisitor<Path> {
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
 	@NonNull
 	private final F fileTreeWalkContext;
 
@@ -115,6 +119,7 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 			if (predicate.test(visitContext)) {
 				ThrowableFunction<C, FileVisitResult> function = entry.getValue();
 				result = function.apply(visitContext);
+				logger.info("Finished visiting the path:'{}'.", path.normalize());
 				if (!ArrayUtils.contains(continueSubsequent, result)) {
 					return result;
 				}
