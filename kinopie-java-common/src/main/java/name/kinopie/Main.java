@@ -8,13 +8,13 @@ import java.nio.file.Paths;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import name.kinopie.nio.file.DelegatingFileVisitor;
+import name.kinopie.nio.file.DefaultDelegatingFileVisitor;
 
 public class Main {
 
 	public static void main(String[] args) throws IOException {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-			FileVisitor<Path> visitor = context.getBean(DelegatingFileVisitor.class);
+			FileVisitor<Path> visitor = context.getBean(DefaultDelegatingFileVisitor.class);
 			Path start = Paths.get(".");
 			Files.walkFileTree(start, visitor);
 		}

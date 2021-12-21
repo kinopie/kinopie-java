@@ -20,10 +20,10 @@ import name.kinopie.util.function.ThrowablePredicate;
 
 @RequiredArgsConstructor
 public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O extends PostVisitContext, F extends FileTreeWalkContext<R, O>>
-		extends SimpleFileVisitor<Path> {
+		extends SimpleFileVisitor<Path> implements DelegatingFileVisitor<R, O, F> {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	@NonNull
 	private final F fileTreeWalkContext;
 
@@ -56,24 +56,28 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 				super::postVisitDirectory, FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
 	}
 
+	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onPreVisitDirectory(ThrowablePredicate<R> predicate,
 			ThrowableFunction<R, FileVisitResult> function) {
 		onPreVisitDirectory.put(predicate, function);
 		return this;
 	}
 
+	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onVisitFile(ThrowablePredicate<R> predicate,
 			ThrowableFunction<R, FileVisitResult> function) {
 		onVisitFile.put(predicate, function);
 		return this;
 	}
 
+	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onVisitFileFailed(ThrowablePredicate<O> predicate,
 			ThrowableFunction<O, FileVisitResult> function) {
 		onVisitFileFailed.put(predicate, function);
 		return this;
 	}
 
+	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onPostVisitDirectory(ThrowablePredicate<O> predicate,
 			ThrowableFunction<O, FileVisitResult> function) {
 		onPostVisitDirectory.put(predicate, function);

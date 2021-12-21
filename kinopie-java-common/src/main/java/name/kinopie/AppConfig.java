@@ -10,14 +10,18 @@ import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import name.kinopie.nio.file.DefaultDelegatingFileVisitor;
 import name.kinopie.nio.file.DelegatingFileVisitor;
+import name.kinopie.nio.file.FileTreeWalkContext;
+import name.kinopie.nio.file.PostVisitContext;
+import name.kinopie.nio.file.PreVisitContext;
 
 @Configuration
 public class AppConfig {
 
 	@Bean
 	public FileVisitor<Path> fileVisitor() {
-		DelegatingFileVisitor visitor = new DelegatingFileVisitor();
+		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor();
 		visitor.onPreVisitDirectory(context -> context.pathMatchesAny("**/test/**"),
 				context -> FileVisitResult.CONTINUE);
 

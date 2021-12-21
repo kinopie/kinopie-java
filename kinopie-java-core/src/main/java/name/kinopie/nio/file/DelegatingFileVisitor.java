@@ -1,42 +1,24 @@
 package name.kinopie.nio.file;
 
-import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 
-public class DelegatingFileVisitor extends
-		AbstractDelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> {
+import name.kinopie.util.function.ThrowableFunction;
+import name.kinopie.util.function.ThrowablePredicate;
 
-	public DelegatingFileVisitor() {
-		this(new DefaultFileTreeWalkContext());
-	}
+public interface DelegatingFileVisitor<R extends PreVisitContext, O extends PostVisitContext, F extends FileTreeWalkContext<R, O>>
+		extends FileVisitor<Path> {
 
-	public DelegatingFileVisitor(FileTreeWalkContext<PreVisitContext, PostVisitContext> fileTreeWalkContext) {
-		super(fileTreeWalkContext);
-	}
-}
+	DelegatingFileVisitor<R, O, F> onPreVisitDirectory(ThrowablePredicate<R> predicate,
+			ThrowableFunction<R, FileVisitResult> function);
 
-class DefaultFileTreeWalkContext implements FileTreeWalkContext<PreVisitContext, PostVisitContext> {
+	DelegatingFileVisitor<R, O, F> onVisitFile(ThrowablePredicate<R> predicate,
+			ThrowableFunction<R, FileVisitResult> function);
 
-	public DefaultPreVisitContext createPreVisitContext(Path path, BasicFileAttributes attrs) {
-		return new DefaultPreVisitContext(path, attrs);
-	}
+	DelegatingFileVisitor<R, O, F> onVisitFileFailed(ThrowablePredicate<O> predicate,
+			ThrowableFunction<O, FileVisitResult> function);
 
-	public DefaultPostVisitContext createPostVisitContext(Path path, IOException exc) {
-		return new DefaultPostVisitContext(path, exc);
-	}
-}
-
-class DefaultPreVisitContext extends AbstractPreVisitContext {
-
-	public DefaultPreVisitContext(Path path, BasicFileAttributes attrs) {
-		super(path, attrs);
-	}
-}
-
-class DefaultPostVisitContext extends AbstractPostVisitContext {
-
-	public DefaultPostVisitContext(Path path, IOException exc) {
-		super(path, exc);
-	}
+	DelegatingFileVisitor<R, O, F> onPostVisitDirectory(ThrowablePredicate<O> predicate,
+			ThrowableFunction<O, FileVisitResult> function);
 }
