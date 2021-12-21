@@ -13,4 +13,6 @@ public interface FileVisitContext {
 	boolean pathMatchesAny(String... antPathPatterns);
 
 	FileVisitContext editFile(Charset cs, UnaryOperator<List<String>> editor) throws IOException;
+
+	FileVisitContext changeCharset(Charset from, Charset to) throws IOException;
 }

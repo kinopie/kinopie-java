@@ -47,4 +47,12 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 		Files.write(getPath(), allLines, cs, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 		return this;
 	}
+
+	@Override
+	public FileVisitContext changeCharset(Charset from, Charset to) throws IOException {
+		List<String> allLines = Files.readAllLines(getPath(), from);
+		Files.write(getPath(), allLines, to, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+		logger.debug("Changed charset of the path:'{}' from '{}' to '{}'.", getPath().normalize(), from, to);
+		return this;
+	}
 }

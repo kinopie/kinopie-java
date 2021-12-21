@@ -1,5 +1,6 @@
 package name.kinopie;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -30,9 +31,14 @@ public class AppConfig {
 			return FileVisitResult.CONTINUE;
 		});
 
-		visitor.onVisitFile(context -> context.pathMatchesAny("src/test/resources/test*.txt"), context -> {
+		visitor.onVisitFile(context -> context.pathMatchesAny("src/test/resources/editFileTest*.txt"), context -> {
 			context.editFile(StandardCharsets.UTF_8,
 					allLines -> allLines.stream().map(s -> s.replace('a', 'z')).collect(Collectors.toList()));
+			return FileVisitResult.CONTINUE;
+		});
+
+		visitor.onVisitFile(context -> context.pathMatchesAny("src/test/resources/changeEncodingTest.txt"), context -> {
+			context.changeCharset(StandardCharsets.UTF_8, Charset.forName("shift_jis"));
 			return FileVisitResult.CONTINUE;
 		});
 
