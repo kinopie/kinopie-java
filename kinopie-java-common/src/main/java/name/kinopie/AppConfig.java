@@ -23,7 +23,7 @@ public class AppConfig {
 	@Bean
 	public FileVisitor<Path> fileVisitor() {
 		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor();
-		visitor.onPreVisitDirectory(context -> context.pathMatchesAny("**/test/**"),
+		visitor.onPreVisitDirectory(context -> context.pathMatchesAny("**/main/**"),
 				context -> FileVisitResult.CONTINUE);
 
 		visitor.onVisitFile(context -> context.pathMatchesAny("**/*.java"), context -> {
@@ -38,12 +38,16 @@ public class AppConfig {
 		});
 
 		visitor.onVisitFile(context -> context.pathMatchesAny("src/test/resources/changeEncodingTest.txt"), context -> {
-			context.changeCharset(StandardCharsets.UTF_8, Charset.forName("shift_jis"));
+			context.changeCharset(Charset.forName("shift_jis"), StandardCharsets.UTF_8);
 			return FileVisitResult.CONTINUE;
 		});
 
-		visitor.onPostVisitDirectory(context -> context.pathMatchesAny("**/main/**"),
-				context -> FileVisitResult.CONTINUE);
+		visitor.onPostVisitDirectory(context -> context.pathMatchesAny("**/test/resources/**") && context.isEmptyDir(),
+				context -> {
+					context.createNewEmptyFile(".gitkeep");
+					return FileVisitResult.CONTINUE;
+				});
+
 		return visitor;
 	}
 }
