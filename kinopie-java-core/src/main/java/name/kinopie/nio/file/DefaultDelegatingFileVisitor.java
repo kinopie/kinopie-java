@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 public class DefaultDelegatingFileVisitor extends
 		AbstractDelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> {
 
-	public DefaultDelegatingFileVisitor() {
-		this(new DefaultFileTreeWalkContext());
+	public DefaultDelegatingFileVisitor(Path start) {
+		this(new DefaultFileTreeWalkContext(start));
 	}
 
 	public DefaultDelegatingFileVisitor(FileTreeWalkContext<PreVisitContext, PostVisitContext> fileTreeWalkContext) {
@@ -16,27 +19,31 @@ public class DefaultDelegatingFileVisitor extends
 	}
 }
 
+@RequiredArgsConstructor
 class DefaultFileTreeWalkContext implements FileTreeWalkContext<PreVisitContext, PostVisitContext> {
 
-	public DefaultPreVisitContext createPreVisitContext(Path path, BasicFileAttributes attrs) {
-		return new DefaultPreVisitContext(path, attrs);
+	@NonNull
+	private final Path start;
+
+	public PreVisitContext createPreVisitContext(Path current, BasicFileAttributes attrs) {
+		return new DefaultPreVisitContext(start, current, attrs);
 	}
 
-	public DefaultPostVisitContext createPostVisitContext(Path path, IOException exc) {
-		return new DefaultPostVisitContext(path, exc);
+	public PostVisitContext createPostVisitContext(Path current, IOException exc) {
+		return new DefaultPostVisitContext(start, current, exc);
 	}
 }
 
 class DefaultPreVisitContext extends AbstractPreVisitContext {
 
-	public DefaultPreVisitContext(Path path, BasicFileAttributes attrs) {
-		super(path, attrs);
+	public DefaultPreVisitContext(Path start, Path current, BasicFileAttributes attrs) {
+		super(start, current, attrs);
 	}
 }
 
 class DefaultPostVisitContext extends AbstractPostVisitContext {
 
-	public DefaultPostVisitContext(Path path, IOException exc) {
-		super(path, exc);
+	public DefaultPostVisitContext(Path start, Path current, IOException exc) {
+		super(start, current, exc);
 	}
 }

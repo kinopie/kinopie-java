@@ -10,8 +10,8 @@ public abstract class AbstractPreVisitContext extends AbstractFileVisitContext i
 
 	private BasicFileAttributes attrs;
 
-	protected AbstractPreVisitContext(Path path, BasicFileAttributes attrs) {
-		super(path);
+	protected AbstractPreVisitContext(Path start, Path current, BasicFileAttributes attrs) {
+		super(start, current);
 		this.attrs = attrs;
 	}
 }

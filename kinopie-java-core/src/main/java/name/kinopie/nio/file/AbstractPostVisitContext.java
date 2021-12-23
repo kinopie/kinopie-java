@@ -10,8 +10,8 @@ public abstract class AbstractPostVisitContext extends AbstractFileVisitContext 
 
 	private IOException exc;
 
-	protected AbstractPostVisitContext(Path path, IOException exc) {
-		super(path);
+	protected AbstractPostVisitContext(Path start, Path current, IOException exc) {
+		super(start, current);
 		this.exc = exc;
 	}
 }

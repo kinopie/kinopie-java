@@ -8,10 +8,14 @@ import java.util.function.UnaryOperator;
 
 public interface FileVisitContext {
 
-	Path getPath();
+	Path getStart();
+
+	Path getCurrent();
 
 	boolean pathMatchesAny(String... antPathPatterns);
 
+	boolean onStart();
+	
 	boolean isEmptyDir() throws IOException;
 	
 	void editFile(Charset cs, UnaryOperator<List<String>> editor) throws IOException;

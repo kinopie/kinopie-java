@@ -12,20 +12,22 @@ import java.util.stream.Collectors;
 import name.kinopie.nio.file.DefaultDelegatingFileVisitor;
 import name.kinopie.nio.file.DelegatingFileVisitor;
 import name.kinopie.nio.file.FileTreeWalkContext;
+import name.kinopie.nio.file.FileVisitContext;
 import name.kinopie.nio.file.PostVisitContext;
 import name.kinopie.nio.file.PreVisitContext;
 
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		Path start = Paths.get(".");
+		Path start = Paths.get("src\\main\\java");
 
-		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor();
+		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor(
+				start);
 		visitor.onPreVisitDirectory(context -> context.pathMatchesAny("**/main/**"),
 				context -> FileVisitResult.CONTINUE);
 
 		visitor.onVisitFile(context -> context.pathMatchesAny("**/*.java"), context -> {
-			Files.readAllLines(context.getPath()).stream().forEach(System.out::println); // NOSONAR
+			Files.readAllLines(context.getCurrent()).stream().forEach(System.out::println); // NOSONAR
 			return FileVisitResult.CONTINUE;
 		});
 
@@ -45,6 +47,12 @@ public class Main {
 					context.createNewEmptyFile(".gitkeep");
 					return FileVisitResult.CONTINUE;
 				});
+
+		visitor.onPostVisitDirectory(FileVisitContext::onStart, context -> {
+			System.err.println("context.getStart():" + context.getStart());
+			System.err.println("context.getCurrent():" + context.getCurrent());
+			return FileVisitResult.CONTINUE;
+		});
 
 		Files.walkFileTree(start, visitor);
 	}
