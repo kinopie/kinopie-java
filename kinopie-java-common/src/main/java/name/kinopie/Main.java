@@ -4,15 +4,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
-
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import name.kinopie.nio.file.DefaultDelegatingFileVisitor;
 import name.kinopie.nio.file.DelegatingFileVisitor;
@@ -20,11 +15,11 @@ import name.kinopie.nio.file.FileTreeWalkContext;
 import name.kinopie.nio.file.PostVisitContext;
 import name.kinopie.nio.file.PreVisitContext;
 
-@Configuration
-public class AppConfig {
+public class Main {
 
-	@Bean
-	public FileVisitor<Path> fileVisitor() {
+	public static void main(String[] args) throws IOException {
+		Path start = Paths.get(".");
+
 		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor();
 		visitor.onPreVisitDirectory(context -> context.pathMatchesAny("**/main/**"),
 				context -> FileVisitResult.CONTINUE);
@@ -51,14 +46,6 @@ public class AppConfig {
 					return FileVisitResult.CONTINUE;
 				});
 
-		return visitor;
-	}
-
-	public static void main(String[] args) throws IOException {
-		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class)) {
-			FileVisitor<Path> visitor = context.getBean(DefaultDelegatingFileVisitor.class);
-			Path start = Paths.get(".");
-			Files.walkFileTree(start, visitor);
-		}
+		Files.walkFileTree(start, visitor);
 	}
 }
