@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 public class DefaultDelegatingFileVisitor extends
 		AbstractDelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> {
@@ -34,6 +36,8 @@ class DefaultFileTreeWalkContext implements FileTreeWalkContext<PreVisitContext,
 	}
 }
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 class DefaultPreVisitContext extends AbstractPreVisitContext {
 
 	public DefaultPreVisitContext(Path start, Path current, BasicFileAttributes attrs) {
@@ -41,6 +45,8 @@ class DefaultPreVisitContext extends AbstractPreVisitContext {
 	}
 }
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 class DefaultPostVisitContext extends AbstractPostVisitContext {
 
 	public DefaultPostVisitContext(Path start, Path current, IOException exc) {

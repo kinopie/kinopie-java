@@ -13,12 +13,16 @@ import java.util.function.UnaryOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @RequiredArgsConstructor
+@EqualsAndHashCode
 @Getter
+@ToString(exclude = "logger")
 public abstract class AbstractFileVisitContext implements FileVisitContext {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());

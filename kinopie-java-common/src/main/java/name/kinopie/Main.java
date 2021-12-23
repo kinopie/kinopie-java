@@ -19,7 +19,7 @@ import name.kinopie.nio.file.PreVisitContext;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		Path start = Paths.get("src\\main\\java");
+		Path start = Paths.get(".");
 
 		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor(
 				start);
@@ -33,12 +33,12 @@ public class Main {
 
 		visitor.onVisitFile(context -> context.pathMatchesAny("src/test/resources/editFileTest*.txt"), context -> {
 			context.editFile(StandardCharsets.UTF_8,
-					allLines -> allLines.stream().map(s -> s.replace('a', 'z')).collect(Collectors.toList()));
+					allLines -> allLines.stream().map(s -> s.replace('z', 'a')).collect(Collectors.toList()));
 			return FileVisitResult.CONTINUE;
 		});
 
 		visitor.onVisitFile(context -> context.pathMatchesAny("src/test/resources/changeEncodingTest.txt"), context -> {
-			context.changeCharset(Charset.forName("shift_jis"), StandardCharsets.UTF_8);
+			context.changeCharset(StandardCharsets.UTF_8, Charset.forName("shift_jis"));
 			return FileVisitResult.CONTINUE;
 		});
 
@@ -49,8 +49,6 @@ public class Main {
 				});
 
 		visitor.onPostVisitDirectory(FileVisitContext::onStart, context -> {
-			System.err.println("context.getStart():" + context.getStart());
-			System.err.println("context.getCurrent():" + context.getCurrent());
 			return FileVisitResult.CONTINUE;
 		});
 
