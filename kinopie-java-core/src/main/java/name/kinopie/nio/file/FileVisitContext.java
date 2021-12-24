@@ -14,7 +14,7 @@ public interface FileVisitContext {
 
 	boolean pathMatchesAny(String... antPathPatterns);
 
-	boolean onStart();
+	boolean onStartingPoint();
 	
 	boolean isEmptyDir() throws IOException;
 	

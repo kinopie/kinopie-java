@@ -45,7 +45,7 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 	}
 
 	@Override
-	public boolean onStart() {
+	public boolean onStartingPoint() {
 		return start.equals(current);
 	}
 

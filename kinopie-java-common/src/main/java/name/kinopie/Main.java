@@ -48,7 +48,7 @@ public class Main {
 					return FileVisitResult.CONTINUE;
 				});
 
-		visitor.onPostVisitDirectory(FileVisitContext::onStart, context -> {
+		visitor.onPostVisitDirectory(FileVisitContext::onStartingPoint, context -> {
 			return FileVisitResult.CONTINUE;
 		});
 
