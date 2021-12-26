@@ -28,16 +28,16 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@NonNull
-	private final Path start;
+	private final Path startingPath;
 
 	@NonNull
-	private final Path current;
+	private final Path currentPath;
 
 	@Override
-	public boolean pathMatchesAny(String... antPathPatterns) {
-		if (PathUtils.anyMatch(getCurrent(), antPathPatterns)) {
+	public boolean currentPathMatches(String... antPathPatterns) {
+		if (PathUtils.anyMatch(getCurrentPath(), antPathPatterns)) {
 			String antPathPatternStrings = Arrays.toString(antPathPatterns);
-			logger.info("Path:'{}' matches {}.", getCurrent().normalize(), antPathPatternStrings);
+			logger.info("Path:'{}' matches {}.", getCurrentPath().normalize(), antPathPatternStrings);
 			return true;
 		} else {
 			return false;
@@ -45,38 +45,38 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 	}
 
 	@Override
-	public boolean onStartingPoint() {
-		return start.equals(current);
+	public boolean onStartingPath() {
+		return startingPath.equals(currentPath);
 	}
 
 	@Override
 	public boolean isEmptyDir() throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(getCurrent())) {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(getCurrentPath())) {
 			return !stream.iterator().hasNext();
 		}
 	}
 
 	@Override
 	public void editFile(Charset cs, UnaryOperator<List<String>> editor) throws IOException {
-		List<String> allLines = Files.readAllLines(getCurrent(), cs);
-		logger.debug("Read all lines from the path:'{}'.", getCurrent().normalize());
+		List<String> allLines = Files.readAllLines(getCurrentPath(), cs);
+		logger.debug("Read all lines from the path:'{}'.", getCurrentPath().normalize());
 		allLines.stream().forEach(logger::debug);
 		allLines = editor.apply(allLines);
-		logger.debug("Write all lines to the path:'{}'.", getCurrent().normalize());
+		logger.debug("Write all lines to the path:'{}'.", getCurrentPath().normalize());
 		allLines.stream().forEach(logger::debug);
-		Files.write(getCurrent(), allLines, cs, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+		Files.write(getCurrentPath(), allLines, cs, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
 	@Override
 	public void changeCharset(Charset from, Charset to) throws IOException {
-		List<String> allLines = Files.readAllLines(getCurrent(), from);
-		Files.write(getCurrent(), allLines, to, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-		logger.debug("Changed charset of the path:'{}' from '{}' to '{}'.", getCurrent().normalize(), from, to);
+		List<String> allLines = Files.readAllLines(getCurrentPath(), from);
+		Files.write(getCurrentPath(), allLines, to, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+		logger.debug("Changed charset of the path:'{}' from '{}' to '{}'.", getCurrentPath().normalize(), from, to);
 	}
 
 	@Override
 	public void createNewEmptyFile(String fileName) throws IOException {
-		Path newEmptyFile = getCurrent().resolve(fileName);
+		Path newEmptyFile = getCurrentPath().resolve(fileName);
 		Files.createFile(newEmptyFile);
 		logger.debug("Created new empty file:'{}'.", newEmptyFile.normalize());
 	}
