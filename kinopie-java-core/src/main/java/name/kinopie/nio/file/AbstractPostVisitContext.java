@@ -3,6 +3,8 @@ package name.kinopie.nio.file;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.springframework.util.PathMatcher;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -14,8 +16,8 @@ public abstract class AbstractPostVisitContext extends AbstractFileVisitContext 
 
 	private IOException exc;
 
-	protected AbstractPostVisitContext(Path start, Path current, IOException exc) {
-		super(start, current);
+	protected AbstractPostVisitContext(PathMatcher pathMatcher, Path startingPath, Path currentPath, IOException exc) {
+		super(pathMatcher, startingPath, currentPath);
 		this.exc = exc;
 	}
 }
