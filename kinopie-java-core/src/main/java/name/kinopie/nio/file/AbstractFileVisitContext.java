@@ -25,7 +25,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
-@ToString(exclude = "logger")
+@ToString(exclude = { "pathMatcher", "logger" })
 public abstract class AbstractFileVisitContext implements FileVisitContext {
 
 	private static final String ESCAPED_FILE_SEPARATOR = Pattern.quote(File.separator);

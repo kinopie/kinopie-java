@@ -49,9 +49,7 @@ public class Main {
 					return FileVisitResult.CONTINUE;
 				});
 
-		visitor.onPostVisitDirectory(FileVisitContext::onStartingPath, context -> {
-			return FileVisitResult.CONTINUE;
-		});
+		visitor.onPostVisitDirectory(FileVisitContext::onStartingPath, context -> FileVisitResult.CONTINUE);
 
 		Files.walkFileTree(start, visitor);
 	}
