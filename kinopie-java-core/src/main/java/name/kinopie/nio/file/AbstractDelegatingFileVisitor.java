@@ -35,25 +35,26 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 		return visit(dir, attrs, fileTreeWalkContext::createPreVisitContext, onPreVisitDirectory,
-				super::preVisitDirectory, FileVisitResult.CONTINUE);
+				super::preVisitDirectory, "PreVisitDirectory", FileVisitResult.CONTINUE);
 	}
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 		return visit(file, attrs, fileTreeWalkContext::createPreVisitContext, onVisitFile, super::visitFile,
-				FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
+				"VisitFile", FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
 	}
 
 	@Override
 	public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
 		return visit(file, exc, fileTreeWalkContext::createPostVisitContext, onVisitFileFailed, super::visitFileFailed,
-				FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
+				"VisitFileFailed", FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
 	}
 
 	@Override
 	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 		return visit(dir, exc, fileTreeWalkContext::createPostVisitContext, onPostVisitDirectory,
-				super::postVisitDirectory, FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
+				super::postVisitDirectory, "PostVisitDirectory", FileVisitResult.CONTINUE,
+				FileVisitResult.SKIP_SUBTREE);
 	}
 
 	@Override
@@ -87,10 +88,11 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	private <A, C extends FileVisitContext> FileVisitResult visit(Path path, A arg,
 			ThrowableBiFunction<Path, A, C> visitContextFactory,
 			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions,
-			ThrowableBiFunction<Path, A, FileVisitResult> fallbackFunction, FileVisitResult... continueSubsequent)
-			throws IOException {
+			ThrowableBiFunction<Path, A, FileVisitResult> fallbackFunction, String eventType,
+			FileVisitResult... continueSubsequent) throws IOException {
 		try {
-			return doVisit(path, arg, visitContextFactory, predicatedFunctions, fallbackFunction, continueSubsequent);
+			return doVisit(path, arg, visitContextFactory, predicatedFunctions, fallbackFunction, eventType,
+					continueSubsequent);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {
@@ -101,10 +103,10 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	private <A, C extends FileVisitContext> FileVisitResult doVisit(Path path, A arg,
 			ThrowableBiFunction<Path, A, C> visitContextFactory,
 			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions,
-			ThrowableBiFunction<Path, A, FileVisitResult> fallbackFunction, FileVisitResult... continueSubsequent)
-			throws Exception {
+			ThrowableBiFunction<Path, A, FileVisitResult> fallbackFunction, String eventType,
+			FileVisitResult... continueSubsequent) throws Exception {
 		FileVisitResult result = doVisitWithPredicatedFunctions(path, arg, visitContextFactory, predicatedFunctions,
-				continueSubsequent);
+				eventType, continueSubsequent);
 		if (result == null) {
 			return fallbackFunction.apply(path, arg);
 		}
@@ -113,7 +115,7 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 
 	private <A, C extends FileVisitContext> FileVisitResult doVisitWithPredicatedFunctions(Path path, A arg,
 			ThrowableBiFunction<Path, A, C> visitContextFactory,
-			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions,
+			Map<ThrowablePredicate<C>, ThrowableFunction<C, FileVisitResult>> predicatedFunctions, String eventType,
 			FileVisitResult... continueSubsequent) throws Exception {
 		FileVisitResult result = null;
 		C visitContext = visitContextFactory.apply(path, arg);
@@ -121,12 +123,12 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 				.entrySet()) {
 			ThrowablePredicate<C> predicate = entry.getKey();
 			if (predicate.test(visitContext)) {
-				// TODO イベント種別（preVisitDirectory, visitFile, visitFileFailed, postVisitDirectory） のログ出力
-				// TODO 全体的に、ログに出力するパスをnormalizeするかしないかを統一する
-				logger.info("Start to visit the path:'{}' with context '{}'.", path, visitContext);
+				logger.info("[{}] Start to visit the path:'{}' with context '{}'.", eventType, path.normalize(),
+						visitContext);
 				ThrowableFunction<C, FileVisitResult> function = entry.getValue();
 				result = function.apply(visitContext);
-				logger.info("Finished visiting the path:'{}' with result '{}'.", path, result);
+				logger.info("[{}] Finished visiting the path:'{}' with result '{}'.", eventType, path.normalize(),
+						result);
 				if (!ArrayUtils.contains(continueSubsequent, result)) {
 					return result;
 				}
