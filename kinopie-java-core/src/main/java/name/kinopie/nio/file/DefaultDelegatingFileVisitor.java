@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +13,7 @@ public class DefaultDelegatingFileVisitor extends
 		AbstractDelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> {
 
 	public DefaultDelegatingFileVisitor(Path start) {
-		this(new AntPathMatcher(), start);
-	}
-
-	public DefaultDelegatingFileVisitor(PathMatcher pathMatcher, Path start) {
-		this(new DefaultFileTreeWalkContext(pathMatcher, start));
+		this(new DefaultFileTreeWalkContext(start));
 	}
 
 	public DefaultDelegatingFileVisitor(FileTreeWalkContext<PreVisitContext, PostVisitContext> fileTreeWalkContext) {
@@ -32,17 +25,14 @@ public class DefaultDelegatingFileVisitor extends
 class DefaultFileTreeWalkContext implements FileTreeWalkContext<PreVisitContext, PostVisitContext> {
 
 	@NonNull
-	private final PathMatcher pathMatcher;
-
-	@NonNull
 	private final Path start;
 
 	public PreVisitContext createPreVisitContext(Path current, BasicFileAttributes attrs) {
-		return new DefaultPreVisitContext(pathMatcher, start, current, attrs);
+		return new DefaultPreVisitContext(start, current, attrs);
 	}
 
 	public PostVisitContext createPostVisitContext(Path current, IOException exc) {
-		return new DefaultPostVisitContext(pathMatcher, start, current, exc);
+		return new DefaultPostVisitContext(start, current, exc);
 	}
 }
 
@@ -50,9 +40,8 @@ class DefaultFileTreeWalkContext implements FileTreeWalkContext<PreVisitContext,
 @ToString(callSuper = true)
 class DefaultPreVisitContext extends AbstractPreVisitContext {
 
-	public DefaultPreVisitContext(PathMatcher pathMatcher, Path startingPath, Path currentPath,
-			BasicFileAttributes attrs) {
-		super(pathMatcher, startingPath, currentPath, attrs);
+	public DefaultPreVisitContext(Path startingPath, Path currentPath, BasicFileAttributes attrs) {
+		super(startingPath, currentPath, attrs);
 	}
 }
 
@@ -60,7 +49,7 @@ class DefaultPreVisitContext extends AbstractPreVisitContext {
 @ToString(callSuper = true)
 class DefaultPostVisitContext extends AbstractPostVisitContext {
 
-	public DefaultPostVisitContext(PathMatcher pathMatcher, Path startingPath, Path currentPath, IOException exc) {
-		super(pathMatcher, startingPath, currentPath, exc);
+	public DefaultPostVisitContext(Path startingPath, Path currentPath, IOException exc) {
+		super(startingPath, currentPath, exc);
 	}
 }

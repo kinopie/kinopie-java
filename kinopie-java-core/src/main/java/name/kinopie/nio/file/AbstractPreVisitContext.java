@@ -3,8 +3,6 @@ package name.kinopie.nio.file;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import org.springframework.util.PathMatcher;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,9 +14,8 @@ public abstract class AbstractPreVisitContext extends AbstractFileVisitContext i
 
 	private BasicFileAttributes attrs;
 
-	protected AbstractPreVisitContext(PathMatcher pathMatcher, Path startingPath, Path currentPath,
-			BasicFileAttributes attrs) {
-		super(pathMatcher, startingPath, currentPath);
+	protected AbstractPreVisitContext(Path startingPath, Path currentPath, BasicFileAttributes attrs) {
+		super(startingPath, currentPath);
 		this.attrs = attrs;
 	}
 }

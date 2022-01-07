@@ -1,20 +1,19 @@
 package name.kinopie.nio.file;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.PathMatcher;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,24 +27,13 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
-@ToString(exclude = { "pathMatcher", "logger" })
+@ToString(exclude = { "logger" })
 public abstract class AbstractFileVisitContext implements FileVisitContext {
-
-	/**
-	 * 正規表現内で利用するためにエスケープした {@link File#separator}
-	 */
-	private static final String ESCAPED_FILE_SEPARATOR = Pattern.quote(File.separator);
 
 	/**
 	 * logger
 	 */
 	private Logger logger = LoggerFactory.getLogger(getClass());
-
-	/**
-	 * 
-	 */
-	@NonNull
-	private PathMatcher pathMatcher;
 
 	@NonNull
 	private final Path startingPath;
@@ -54,17 +42,13 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 	private final Path currentPath;
 
 	@Override
-	public boolean currentPathMatches(String... antPathPatterns) {
-		final String normalizedPath = getNormalizedCurrentPathString().replaceAll(ESCAPED_FILE_SEPARATOR, "/");
-		boolean anyMatch = Arrays.stream(antPathPatterns)
-				.anyMatch(antPathPattern -> pathMatcher.match(antPathPattern, normalizedPath));
-		if (anyMatch) {
-			String antPathPatternStrings = Arrays.toString(antPathPatterns);
-			logger.info("Path:'{}' matches {}.", getNormalizedCurrentPath(), antPathPatternStrings);
-			return true;
-		} else {
-			return false;
-		}
+	public boolean currentPathGlobPatternMatches(String... globPatterns) {
+		return currentPathMatches("glob", globPatterns);
+	}
+
+	@Override
+	public boolean currentPathRegexPatternMatches(String... regexPatterns) {
+		return currentPathMatches("regex", regexPatterns);
 	}
 
 	@Override
@@ -104,8 +88,19 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 		logger.debug("Created new empty file:'{}'.", newEmptyFile.normalize());
 	}
 
-	private String getNormalizedCurrentPathString() {
-		return getNormalizedCurrentPath().toString();
+	private boolean currentPathMatches(String syntax, String... patterns) {
+		FileSystem defaultFS = FileSystems.getDefault();
+		boolean anyMatch = Arrays.stream(patterns).map(globPattern -> {
+			String globPatternWithSyntax = syntax.concat(":").concat(globPattern);
+			return defaultFS.getPathMatcher(globPatternWithSyntax);
+		}).anyMatch(matcher -> matcher.matches(currentPath));
+		if (anyMatch) {
+			String globPatternStrings = Arrays.toString(patterns);
+			logger.info("Path:'{}' matches {}.", getNormalizedCurrentPath(), globPatternStrings);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private Path getNormalizedCurrentPath() {

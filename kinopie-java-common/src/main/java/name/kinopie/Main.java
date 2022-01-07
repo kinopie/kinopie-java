@@ -23,13 +23,15 @@ public class Main {
 
 		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor(
 				start);
-		visitor.onPreVisitDirectory(context -> context.currentPathMatches("**/main/**"),
-				context -> FileVisitResult.CONTINUE);
+		visitor.onPreVisitDirectory(context -> context.currentPathGlobPatternMatches("**/main", "**/test"),
+				context -> {
+					System.out.println(context.getCurrentPath());
+					return FileVisitResult.CONTINUE;});
 
-		visitor.onVisitFile(context -> context.currentPathMatches("**/*.java"), context -> {
-			Files.readAllLines(context.getCurrentPath()).stream().forEach(System.out::println); // NOSONAR
-			return FileVisitResult.CONTINUE;
-		});
+		visitor.onVisitFile(context -> context.currentPathGlobPatternMatches("**/*.java"), 				context -> {
+			System.out.println(context.getCurrentPath());
+			return FileVisitResult.CONTINUE;});
+
 
 		visitor.onVisitFile(context -> context.currentPathMatches("src/test/resources/editFileTest*.txt"), context -> {
 			context.editFile(StandardCharsets.UTF_8,

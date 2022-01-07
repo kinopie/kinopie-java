@@ -2,6 +2,7 @@ package name.kinopie.nio.file;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.UnaryOperator;
@@ -26,14 +27,28 @@ public interface FileVisitContext {
 	Path getCurrentPath();
 
 	/**
-	 * 現在訪問中の {@link Path} が、指定された Antパスパターンのいずれかにマッチするかどうかを判定します。
+	 * 現在訪問中の {@link Path} が、指定された globパターンのいずれかにマッチするかどうかを判定します。
 	 * 
-	 * @param antPathPatterns Antパスパターン（複数指定可）
+	 * @param globPatterns globパターン（複数指定可）
 	 * 
-	 * @return 現在訪問中の {@link Path} が、指定された Antパスパターンのいずれかにマッチする場合は
+	 * @return 現在訪問中の {@link Path} が、指定された globパターンのいずれかにマッチする場合は
 	 *         <code>true</code>、いずれにもマッチしない場合は <code>false</code>
+	 * 
+	 * @see {@link FileSystem#getPathMatcher(String)}
 	 */
-	boolean currentPathMatches(String... antPathPatterns);
+	boolean currentPathGlobPatternMatches(String... globPatterns);
+
+	/**
+	 * 現在訪問中の {@link Path} が、指定された 正規表現パターンのいずれかにマッチするかどうかを判定します。
+	 * 
+	 * @param globPatterns 正規表現パターン（複数指定可）
+	 * 
+	 * @return 現在訪問中の {@link Path} が、指定された 正規表現パターンのいずれかにマッチする場合は
+	 *         <code>true</code>、いずれにもマッチしない場合は <code>false</code>
+	 * 
+	 * @see {@link FileSystem#getPathMatcher(String)}
+	 */
+	boolean currentPathRegexPatternMatches(String... regexPatterns);
 
 	/**
 	 * 現在訪問中の {@link Path} が開始地点の {@link Path} かどうかを判定します。
