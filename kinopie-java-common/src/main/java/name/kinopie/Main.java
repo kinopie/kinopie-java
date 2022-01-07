@@ -23,30 +23,31 @@ public class Main {
 
 		DelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> visitor = new DefaultDelegatingFileVisitor(
 				start);
-		visitor.onPreVisitDirectory(context -> context.currentPathGlobPatternMatches("**/main", "**/test"),
-				context -> {
-					System.out.println(context.getCurrentPath());
-					return FileVisitResult.CONTINUE;});
+		visitor.onPreVisitDirectory(context -> context.currentPathGlobPatternMatches("**/main/**"),
+				context -> FileVisitResult.CONTINUE);
 
-		visitor.onVisitFile(context -> context.currentPathGlobPatternMatches("**/*.java"), 				context -> {
-			System.out.println(context.getCurrentPath());
-			return FileVisitResult.CONTINUE;});
-
-
-		visitor.onVisitFile(context -> context.currentPathMatches("src/test/resources/editFileTest*.txt"), context -> {
-			context.editFile(StandardCharsets.UTF_8,
-					allLines -> allLines.stream().map(s -> s.replace('z', 'a')).collect(Collectors.toList()));
+		visitor.onVisitFile(context -> context.currentPathGlobPatternMatches("**/*.java"), context -> {
+			Files.readAllLines(context.getCurrentPath()).stream().forEach(System.out::println); // NOSONAR
 			return FileVisitResult.CONTINUE;
 		});
 
-		visitor.onVisitFile(context -> context.currentPathMatches("src/test/resources/changeEncodingTest.txt"),
+		visitor.onVisitFile(context -> context.currentPathGlobPatternMatches("src/test/resources/editFileTest*.txt"),
+				context -> {
+					context.editFile(StandardCharsets.UTF_8,
+							allLines -> allLines.stream().map(s -> s.replace('z', 'a')).collect(Collectors.toList()));
+					return FileVisitResult.CONTINUE;
+				});
+
+		visitor.onVisitFile(
+				context -> context.currentPathGlobPatternMatches("src/test/resources/changeEncodingTest.txt"),
 				context -> {
 					context.changeCharset(Charset.forName("shift_jis"), StandardCharsets.UTF_8);
 					return FileVisitResult.CONTINUE;
 				});
 
 		visitor.onPostVisitDirectory(
-				context -> context.currentPathMatches("**/test/resources/**") && context.isEmptyDir(), context -> {
+				context -> context.currentPathGlobPatternMatches("**/test/resources/**") && context.isEmptyDir(),
+				context -> {
 					context.createNewEmptyFile(".gitkeep");
 					return FileVisitResult.CONTINUE;
 				});
