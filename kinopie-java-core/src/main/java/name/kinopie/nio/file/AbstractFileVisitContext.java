@@ -22,16 +22,28 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * {@link FileVisitContext} の抽象実装クラスです。
+ */
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @Getter
 @ToString(exclude = { "pathMatcher", "logger" })
 public abstract class AbstractFileVisitContext implements FileVisitContext {
 
+	/**
+	 * 正規表現内で利用するためにエスケープした {@link File#separator}
+	 */
 	private static final String ESCAPED_FILE_SEPARATOR = Pattern.quote(File.separator);
 
+	/**
+	 * logger
+	 */
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * 
+	 */
 	@NonNull
 	private PathMatcher pathMatcher;
 
