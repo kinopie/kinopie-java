@@ -2,6 +2,7 @@ package name.kinopie.nio.file;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -18,38 +19,146 @@ import name.kinopie.util.function.ThrowableBiFunction;
 import name.kinopie.util.function.ThrowableFunction;
 import name.kinopie.util.function.ThrowablePredicate;
 
+/**
+ * {@link DelegatingFileVisitor} の抽象実装クラスです。
+ *
+ * @param <R> この {@link AbstractDelegatingFileVisitor} が扱う
+ *            {@link PreVisitContext} のサブタイプ
+ * @param <O> この {@link AbstractDelegatingFileVisitor} が扱う
+ *            {@link PostVisitContext} のサブタイプ
+ * @param <F> この {@link AbstractDelegatingFileVisitor} が扱う
+ *            {@link FileTreeWalkContext} のサブタイプ
+ */
 @RequiredArgsConstructor
 public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O extends PostVisitContext, F extends FileTreeWalkContext<R, O>>
 		extends SimpleFileVisitor<Path> implements DelegatingFileVisitor<R, O, F> {
 
+	/**
+	 * logger
+	 */
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * この {@link AbstractDelegatingFileVisitor} が扱う {@link FileTreeWalkContext}
+	 * のサブタイプのインスタンス
+	 */
 	@NonNull
 	private final F fileTreeWalkContext;
 
+	/**
+	 * {@link FileVisitor#preVisitDirectory(Object, BasicFileAttributes)}
+	 * が呼び出された際に評価される {@link ThrowablePredicate} と、条件を満たす場合に実行される
+	 * {@link ThrowableFunction} の組み合わせ
+	 */
 	private Map<ThrowablePredicate<R>, ThrowableFunction<R, FileVisitResult>> onPreVisitDirectory = new LinkedHashMap<>();
+
+	/**
+	 * {@link FileVisitor#visitFile(Object, BasicFileAttributes)} が呼び出された際に評価される
+	 * {@link ThrowablePredicate} と、条件を満たす場合に実行される {@link ThrowableFunction} の組み合わせ
+	 */
 	private Map<ThrowablePredicate<R>, ThrowableFunction<R, FileVisitResult>> onVisitFile = new LinkedHashMap<>();
+
+	/**
+	 * {@link FileVisitor#visitFileFailed(Object, IOException)} が呼び出された際に評価される
+	 * {@link ThrowablePredicate} と、条件を満たす場合に実行される {@link ThrowableFunction} の組み合わせ
+	 */
 	private Map<ThrowablePredicate<O>, ThrowableFunction<O, FileVisitResult>> onVisitFileFailed = new LinkedHashMap<>();
+
+	/**
+	 * {@link FileVisitor#postVisitDirectory(Object, IOException)} が呼び出された際に評価される
+	 * {@link ThrowablePredicate} と、条件を満たす場合に実行される {@link ThrowableFunction} の組み合わせ
+	 */
 	private Map<ThrowablePredicate<O>, ThrowableFunction<O, FileVisitResult>> onPostVisitDirectory = new LinkedHashMap<>();
 
+	/**
+	 * {@link DelegatingFileVisitor#onPreVisitDirectory(ThrowablePredicate, ThrowableFunction)}
+	 * で登録された {@link ThrowablePredicate} と {@link ThrowableFunction}
+	 * のペアを登録された順序で評価・実行し、最後の {@link ThrowableFunction} の実行結果の
+	 * {@link FileVisitResult} を返却します。
+	 * 
+	 * {@link DelegatingFileVisitor#onPreVisitDirectory(ThrowablePredicate, ThrowableFunction)}
+	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
+	 * {@link SimpleFileVisitor#preVisitDirectory(Object, BasicFileAttributes)}
+	 * の実行結果を返却します。
+	 * 
+	 * @param dir   訪問するディレクトリの {@link Path}
+	 * @param attrs 訪問するディレクトリの基本属性
+	 * 
+	 * @throws IOException 入出力エラーが発生した場合
+	 * 
+	 * @see FileVisitor#preVisitDirectory(Object, BasicFileAttributes)
+	 */
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 		return visit(dir, attrs, fileTreeWalkContext::createPreVisitContext, onPreVisitDirectory,
 				super::preVisitDirectory, "PreVisitDirectory", FileVisitResult.CONTINUE);
 	}
 
+	/**
+	 * {@link DelegatingFileVisitor#onVisitFile(ThrowablePredicate, ThrowableFunction)}
+	 * で登録された {@link ThrowablePredicate} と {@link ThrowableFunction}
+	 * のペアを登録された順序で評価・実行し、最後の {@link ThrowableFunction} の実行結果の
+	 * {@link FileVisitResult} を返却します。
+	 * 
+	 * {@link DelegatingFileVisitor#onVisitFile(ThrowablePredicate, ThrowableFunction)}
+	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
+	 * {@link SimpleFileVisitor#visitFile(Object, BasicFileAttributes)} の実行結果を返却します。
+	 * 
+	 * @param file  訪問するファイルの {@link Path}
+	 * @param attrs 訪問するファイルの基本属性
+	 * 
+	 * @throws IOException 入出力エラーが発生した場合
+	 * 
+	 * @see FileVisitor#visitFile(Object, BasicFileAttributes)
+	 */
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 		return visit(file, attrs, fileTreeWalkContext::createPreVisitContext, onVisitFile, super::visitFile,
 				"VisitFile", FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
 	}
 
+	/**
+	 * {@link DelegatingFileVisitor#onVisitFileFailed(ThrowablePredicate, ThrowableFunction)}
+	 * で登録された {@link ThrowablePredicate} と {@link ThrowableFunction}
+	 * のペアを登録された順序で評価・実行し、最後の {@link ThrowableFunction} の実行結果の
+	 * {@link FileVisitResult} を返却します。
+	 * 
+	 * {@link DelegatingFileVisitor#onVisitFileFailed(ThrowablePredicate, ThrowableFunction)}
+	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
+	 * {@link SimpleFileVisitor#visitFileFailed(Object, IOException)} の実行結果を返却します。
+	 * 
+	 * @param file 訪問したファイルの {@link Path}
+	 * @param exc  ファイルを訪問した際に発生した {@link IOException}
+	 * 
+	 * @throws IOException 入出力エラーが発生した場合
+	 * 
+	 * @see FileVisitor#visitFileFailed(Object, IOException)
+	 */
 	@Override
 	public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
 		return visit(file, exc, fileTreeWalkContext::createPostVisitContext, onVisitFileFailed, super::visitFileFailed,
 				"VisitFileFailed", FileVisitResult.CONTINUE, FileVisitResult.SKIP_SUBTREE);
 	}
 
+	/**
+	 * {@link DelegatingFileVisitor#onPostVisitDirectory(ThrowablePredicate, ThrowableFunction)}
+	 * で登録された {@link ThrowablePredicate} と {@link ThrowableFunction}
+	 * のペアを登録された順序で評価・実行し、最後の {@link ThrowableFunction} の実行結果の
+	 * {@link FileVisitResult} を返却します。
+	 * 
+	 * {@link DelegatingFileVisitor#onPostVisitDirectory(ThrowablePredicate, ThrowableFunction)}
+	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
+	 * {@link SimpleFileVisitor#postVisitDirectory(Object, IOException)}
+	 * の実行結果を返却します。
+	 * 
+	 * @param dir 訪問したディレクトリの {@link Path}
+	 * @param exc ディレクトリを訪問した際に発生した {@link IOException}、入出力エラーが発生しなかった場合は
+	 *            <code>null</code>
+	 * 
+	 * @throws IOException 入出力エラーが発生した場合
+	 * 
+	 * @see FileVisitor#postVisitDirectory(Object, IOException)
+	 */
 	@Override
 	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 		return visit(dir, exc, fileTreeWalkContext::createPostVisitContext, onPostVisitDirectory,
@@ -57,6 +166,10 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 				FileVisitResult.SKIP_SUBTREE);
 	}
 
+	/**
+	 * @see DelegatingFileVisitor#onPreVisitDirectory(ThrowablePredicate,
+	 *      ThrowableFunction)
+	 */
 	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onPreVisitDirectory(ThrowablePredicate<R> predicate,
 			ThrowableFunction<R, FileVisitResult> function) {
@@ -64,6 +177,9 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 		return this;
 	}
 
+	/**
+	 * @see DelegatingFileVisitor#onVisitFile(ThrowablePredicate, ThrowableFunction)
+	 */
 	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onVisitFile(ThrowablePredicate<R> predicate,
 			ThrowableFunction<R, FileVisitResult> function) {
@@ -71,6 +187,10 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 		return this;
 	}
 
+	/**
+	 * @see DelegatingFileVisitor#onVisitFileFailed(ThrowablePredicate,
+	 *      ThrowableFunction)
+	 */
 	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onVisitFileFailed(ThrowablePredicate<O> predicate,
 			ThrowableFunction<O, FileVisitResult> function) {
@@ -78,6 +198,10 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 		return this;
 	}
 
+	/**
+	 * @see DelegatingFileVisitor#onPostVisitDirectory(ThrowablePredicate,
+	 *      ThrowableFunction)
+	 */
 	@Override
 	public AbstractDelegatingFileVisitor<R, O, F> onPostVisitDirectory(ThrowablePredicate<O> predicate,
 			ThrowableFunction<O, FileVisitResult> function) {

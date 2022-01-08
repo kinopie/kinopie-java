@@ -27,6 +27,13 @@ public interface FileVisitContext {
 	Path getCurrentPath();
 
 	/**
+	 * 現在訪問中のパスから冗長な名前要素を削除したパスを返します。
+	 * 
+	 * @return 結果となるパスまたは現在訪問中のパス(現在訪問中のパスに冗長な名前要素が含まれていない場合)
+	 */
+	public Path getNormalizedCurrentPath();
+
+	/**
 	 * 現在訪問中の {@link Path} が、指定された globパターンのいずれかにマッチするかどうかを判定します。
 	 * 
 	 * @param globPatterns globパターン（複数指定可）

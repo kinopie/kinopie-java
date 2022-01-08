@@ -35,27 +35,45 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 	 */
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * 訪問開始地点の {@link Path}
+	 */
 	@NonNull
 	private final Path startingPath;
 
+	/**
+	 * 現在訪問中の {@link Path}
+	 */
 	@NonNull
 	private final Path currentPath;
 
+	/**
+	 * @see FileVisitContext#currentPathGlobPatternMatches(String...)
+	 */
 	@Override
 	public boolean currentPathGlobPatternMatches(String... globPatterns) {
 		return currentPathMatches("glob", globPatterns);
 	}
 
+	/**
+	 * @see FileVisitContext#currentPathRegexPatternMatches(String...)
+	 */
 	@Override
 	public boolean currentPathRegexPatternMatches(String... regexPatterns) {
 		return currentPathMatches("regex", regexPatterns);
 	}
 
+	/**
+	 * @see FileVisitContext#onStartingPath()
+	 */
 	@Override
 	public boolean onStartingPath() {
-		return startingPath.equals(currentPath);
+		return startingPath.equals(getCurrentPath());
 	}
 
+	/**
+	 * @see FileVisitContext#isEmptyDir()
+	 */
 	@Override
 	public boolean isEmptyDir() throws IOException {
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(getCurrentPath())) {
@@ -63,6 +81,9 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 		}
 	}
 
+	/**
+	 * @see FileVisitContext#editFile(Charset, UnaryOperator)
+	 */
 	@Override
 	public void editFile(Charset cs, UnaryOperator<List<String>> editor) throws IOException {
 		List<String> allLines = Files.readAllLines(getCurrentPath(), cs);
@@ -74,6 +95,9 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 		Files.write(getCurrentPath(), allLines, cs, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
+	/**
+	 * @see FileVisitContext#changeCharset(Charset, Charset)
+	 */
 	@Override
 	public void changeCharset(Charset from, Charset to) throws IOException {
 		List<String> allLines = Files.readAllLines(getCurrentPath(), from);
@@ -81,11 +105,21 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 		logger.debug("Changed charset of the path:'{}' from '{}' to '{}'.", getNormalizedCurrentPath(), from, to);
 	}
 
+	/**
+	 * @see FileVisitContext#createNewEmptyFile(String)
+	 */
 	@Override
 	public void createNewEmptyFile(String fileName) throws IOException {
 		Path newEmptyFile = getCurrentPath().resolve(fileName);
 		Files.createFile(newEmptyFile);
 		logger.debug("Created new empty file:'{}'.", newEmptyFile.normalize());
+	}
+
+	/**
+	 * @see FileVisitContext#getNormalizedCurrentPath()
+	 */
+	public Path getNormalizedCurrentPath() {
+		return getCurrentPath().normalize();
 	}
 
 	private boolean currentPathMatches(String syntax, String... patterns) {
@@ -101,9 +135,5 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 		} else {
 			return false;
 		}
-	}
-
-	private Path getNormalizedCurrentPath() {
-		return getCurrentPath().normalize();
 	}
 }
