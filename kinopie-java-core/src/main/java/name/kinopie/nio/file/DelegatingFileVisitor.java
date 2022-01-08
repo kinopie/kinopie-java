@@ -25,14 +25,14 @@ public interface DelegatingFileVisitor<R extends PreVisitContext, O extends Post
 
 	/**
 	 * {@link Files#walkFileTree(Path, FileVisitor)} から
-	 * {@link FileVisitor#preVisitDirectory(Object, java.nio.file.attribute.BasicFileAttributes)}
+	 * {@link FileVisitor#preVisitDirectory(Path, java.nio.file.attribute.BasicFileAttributes)}
 	 * が呼びだされた際に、第1引数の {@link ThrowablePredicate} を評価し、 条件を満たす場合に第2引数の
 	 * {@link ThrowableFunction} を実行します。
 	 * 
 	 * @param predicate 第2引数の {@link ThrowableFunction} 実行の事前条件
 	 * 
 	 * @param function  {@link Files#walkFileTree(Path, FileVisitor)} から
-	 *                  {@link FileVisitor#preVisitDirectory(Object, java.nio.file.attribute.BasicFileAttributes)}
+	 *                  {@link FileVisitor#preVisitDirectory(Path, java.nio.file.attribute.BasicFileAttributes)}
 	 *                  が呼び出された際に実行する、任意の {@link ThrowableFunction}
 	 * @return 実行中の {@link DelegatingFileVisitor} のインスタンス
 	 */
@@ -41,14 +41,14 @@ public interface DelegatingFileVisitor<R extends PreVisitContext, O extends Post
 
 	/**
 	 * {@link Files#walkFileTree(Path, FileVisitor)} から
-	 * {@link FileVisitor#visitFile(Object, java.nio.file.attribute.BasicFileAttributes)}
+	 * {@link FileVisitor#visitFile(Path, java.nio.file.attribute.BasicFileAttributes)}
 	 * が呼びだされた際に、第1引数の {@link ThrowablePredicate} を評価し、 条件を満たす場合に第2引数の
 	 * {@link ThrowableFunction} を実行します。
 	 * 
 	 * @param predicate 第2引数の {@link ThrowableFunction} 実行の事前条件
 	 * 
 	 * @param function  {@link Files#walkFileTree(Path, FileVisitor)} から
-	 *                  {@link FileVisitor#visitFile(Object, java.nio.file.attribute.BasicFileAttributes)}
+	 *                  {@link FileVisitor#visitFile(Path, java.nio.file.attribute.BasicFileAttributes)}
 	 *                  が呼び出された際に実行する、任意の {@link ThrowableFunction}
 	 * @return 実行中の {@link DelegatingFileVisitor} のインスタンス
 	 */
@@ -57,14 +57,14 @@ public interface DelegatingFileVisitor<R extends PreVisitContext, O extends Post
 
 	/**
 	 * {@link Files#walkFileTree(Path, FileVisitor)} から
-	 * {@link FileVisitor#visitFileFailed(Object, java.io.IOException)}
+	 * {@link FileVisitor#visitFileFailed(Path, java.io.IOException)}
 	 * が呼びだされた際に、第1引数の {@link ThrowablePredicate} を評価し、 条件を満たす場合に第2引数の
 	 * {@link ThrowableFunction} を実行します。
 	 * 
 	 * @param predicate 第2引数の {@link ThrowableFunction} 実行の事前条件
 	 * 
 	 * @param function  {@link Files#walkFileTree(Path, FileVisitor)} から
-	 *                  {@link FileVisitor#visitFileFailed(Object, java.io.IOException)}
+	 *                  {@link FileVisitor#visitFileFailed(Path, java.io.IOException)}
 	 *                  が呼び出された際に実行する、任意の {@link ThrowableFunction}
 	 * @return 実行中の {@link DelegatingFileVisitor} のインスタンス
 	 */
@@ -73,14 +73,14 @@ public interface DelegatingFileVisitor<R extends PreVisitContext, O extends Post
 
 	/**
 	 * {@link Files#walkFileTree(Path, FileVisitor)} から
-	 * {@link FileVisitor#postVisitDirectory(Object, java.io.IOException)}
+	 * {@link FileVisitor#postVisitDirectory(Path, java.io.IOException)}
 	 * が呼びだされた際に、第1引数の {@link ThrowablePredicate} を評価し、 条件を満たす場合に第2引数の
 	 * {@link ThrowableFunction} を実行します。
 	 * 
 	 * @param predicate 第2引数の {@link ThrowableFunction} 実行の事前条件
 	 * 
 	 * @param function  {@link Files#walkFileTree(Path, FileVisitor)} から
-	 *                  {@link FileVisitor#postVisitDirectory(Object, java.io.IOException)}
+	 *                  {@link FileVisitor#postVisitDirectory(Path, java.io.IOException)}
 	 *                  が呼び出された際に実行する、任意の {@link ThrowableFunction}
 	 * @return 実行中の {@link DelegatingFileVisitor} のインスタンス
 	 */

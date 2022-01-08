@@ -46,26 +46,26 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	private final F fileTreeWalkContext;
 
 	/**
-	 * {@link FileVisitor#preVisitDirectory(Object, BasicFileAttributes)}
+	 * {@link FileVisitor#preVisitDirectory(Path, BasicFileAttributes)}
 	 * が呼び出された際に評価される {@link ThrowablePredicate} と、条件を満たす場合に実行される
 	 * {@link ThrowableFunction} の組み合わせ
 	 */
 	private Map<ThrowablePredicate<R>, ThrowableFunction<R, FileVisitResult>> onPreVisitDirectory = new LinkedHashMap<>();
 
 	/**
-	 * {@link FileVisitor#visitFile(Object, BasicFileAttributes)} が呼び出された際に評価される
+	 * {@link FileVisitor#visitFile(Path, BasicFileAttributes)} が呼び出された際に評価される
 	 * {@link ThrowablePredicate} と、条件を満たす場合に実行される {@link ThrowableFunction} の組み合わせ
 	 */
 	private Map<ThrowablePredicate<R>, ThrowableFunction<R, FileVisitResult>> onVisitFile = new LinkedHashMap<>();
 
 	/**
-	 * {@link FileVisitor#visitFileFailed(Object, IOException)} が呼び出された際に評価される
+	 * {@link FileVisitor#visitFileFailed(Path, IOException)} が呼び出された際に評価される
 	 * {@link ThrowablePredicate} と、条件を満たす場合に実行される {@link ThrowableFunction} の組み合わせ
 	 */
 	private Map<ThrowablePredicate<O>, ThrowableFunction<O, FileVisitResult>> onVisitFileFailed = new LinkedHashMap<>();
 
 	/**
-	 * {@link FileVisitor#postVisitDirectory(Object, IOException)} が呼び出された際に評価される
+	 * {@link FileVisitor#postVisitDirectory(Path, IOException)} が呼び出された際に評価される
 	 * {@link ThrowablePredicate} と、条件を満たす場合に実行される {@link ThrowableFunction} の組み合わせ
 	 */
 	private Map<ThrowablePredicate<O>, ThrowableFunction<O, FileVisitResult>> onPostVisitDirectory = new LinkedHashMap<>();
@@ -78,7 +78,7 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	 * 
 	 * {@link DelegatingFileVisitor#onPreVisitDirectory(ThrowablePredicate, ThrowableFunction)}
 	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
-	 * {@link SimpleFileVisitor#preVisitDirectory(Object, BasicFileAttributes)}
+	 * {@link SimpleFileVisitor#preVisitDirectory(Path, BasicFileAttributes)}
 	 * の実行結果を返却します。
 	 * 
 	 * @param dir   訪問するディレクトリの {@link Path}
@@ -86,7 +86,7 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	 * 
 	 * @throws IOException 入出力エラーが発生した場合
 	 * 
-	 * @see FileVisitor#preVisitDirectory(Object, BasicFileAttributes)
+	 * @see FileVisitor#preVisitDirectory(Path, BasicFileAttributes)
 	 */
 	@Override
 	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
@@ -102,14 +102,14 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	 * 
 	 * {@link DelegatingFileVisitor#onVisitFile(ThrowablePredicate, ThrowableFunction)}
 	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
-	 * {@link SimpleFileVisitor#visitFile(Object, BasicFileAttributes)} の実行結果を返却します。
+	 * {@link SimpleFileVisitor#visitFile(Path, BasicFileAttributes)} の実行結果を返却します。
 	 * 
 	 * @param file  訪問するファイルの {@link Path}
 	 * @param attrs 訪問するファイルの基本属性
 	 * 
 	 * @throws IOException 入出力エラーが発生した場合
 	 * 
-	 * @see FileVisitor#visitFile(Object, BasicFileAttributes)
+	 * @see FileVisitor#visitFile(Path, BasicFileAttributes)
 	 */
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -125,14 +125,14 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	 * 
 	 * {@link DelegatingFileVisitor#onVisitFileFailed(ThrowablePredicate, ThrowableFunction)}
 	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
-	 * {@link SimpleFileVisitor#visitFileFailed(Object, IOException)} の実行結果を返却します。
+	 * {@link SimpleFileVisitor#visitFileFailed(Path, IOException)} の実行結果を返却します。
 	 * 
 	 * @param file 訪問したファイルの {@link Path}
 	 * @param exc  ファイルを訪問した際に発生した {@link IOException}
 	 * 
 	 * @throws IOException 入出力エラーが発生した場合
 	 * 
-	 * @see FileVisitor#visitFileFailed(Object, IOException)
+	 * @see FileVisitor#visitFileFailed(Path, IOException)
 	 */
 	@Override
 	public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
@@ -148,8 +148,7 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	 * 
 	 * {@link DelegatingFileVisitor#onPostVisitDirectory(ThrowablePredicate, ThrowableFunction)}
 	 * で {@link ThrowablePredicate} と {@link ThrowableFunction} のペアが登録されていない場合は、
-	 * {@link SimpleFileVisitor#postVisitDirectory(Object, IOException)}
-	 * の実行結果を返却します。
+	 * {@link SimpleFileVisitor#postVisitDirectory(Path, IOException)} の実行結果を返却します。
 	 * 
 	 * @param dir 訪問したディレクトリの {@link Path}
 	 * @param exc ディレクトリを訪問した際に発生した {@link IOException}、入出力エラーが発生しなかった場合は
@@ -157,7 +156,7 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 	 * 
 	 * @throws IOException 入出力エラーが発生した場合
 	 * 
-	 * @see FileVisitor#postVisitDirectory(Object, IOException)
+	 * @see FileVisitor#postVisitDirectory(Path, IOException)
 	 */
 	@Override
 	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {

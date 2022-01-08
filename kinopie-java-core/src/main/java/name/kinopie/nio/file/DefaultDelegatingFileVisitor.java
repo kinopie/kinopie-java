@@ -9,13 +9,27 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * {@link DelegatingFileVisitor} のデフォルト実装クラスです。
+ */
 public class DefaultDelegatingFileVisitor extends
 		AbstractDelegatingFileVisitor<PreVisitContext, PostVisitContext, FileTreeWalkContext<PreVisitContext, PostVisitContext>> {
 
+	/**
+	 * 開始地点の {@link Path} を指定して、 {@link DefaultDelegatingFileVisitor} のインスタンスを構築します。
+	 * 
+	 * @param start 開始地点の {@link Path}
+	 */
 	public DefaultDelegatingFileVisitor(Path start) {
 		this(new DefaultFileTreeWalkContext(start));
 	}
 
+	/**
+	 * {@link FileTreeWalkContext} のインスタンスを指定して、
+	 * {@link DefaultDelegatingFileVisitor} のインスタンスを構築します。
+	 * 
+	 * @param fileTreeWalkContext {@link FileTreeWalkContext} のインスタンス
+	 */
 	public DefaultDelegatingFileVisitor(FileTreeWalkContext<PreVisitContext, PostVisitContext> fileTreeWalkContext) {
 		super(fileTreeWalkContext);
 	}
