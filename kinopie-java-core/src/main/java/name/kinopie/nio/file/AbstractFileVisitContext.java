@@ -124,9 +124,9 @@ public abstract class AbstractFileVisitContext implements FileVisitContext {
 
 	private boolean currentPathMatches(String syntax, String... patterns) {
 		FileSystem defaultFS = FileSystems.getDefault();
-		boolean anyMatch = Arrays.stream(patterns).map(globPattern -> {
-			String globPatternWithSyntax = syntax.concat(":").concat(globPattern);
-			return defaultFS.getPathMatcher(globPatternWithSyntax);
+		boolean anyMatch = Arrays.stream(patterns).map(pattern -> {
+			String syntaxAndPattern = syntax.concat(":").concat(pattern);
+			return defaultFS.getPathMatcher(syntaxAndPattern);
 		}).anyMatch(matcher -> matcher.matches(getNormalizedCurrentPath()));
 		if (anyMatch) {
 			String globPatternStrings = Arrays.toString(patterns);
