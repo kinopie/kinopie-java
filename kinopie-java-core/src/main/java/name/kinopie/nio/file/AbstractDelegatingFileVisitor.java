@@ -246,12 +246,12 @@ public abstract class AbstractDelegatingFileVisitor<R extends PreVisitContext, O
 				.entrySet()) {
 			ThrowablePredicate<C> predicate = entry.getKey();
 			if (predicate.test(visitContext)) {
-				logger.info("[{}] Start to visit the path:'{}' with context '{}'.", eventType, path.normalize(),
-						visitContext);
+				logger.info("[{}] Start to visit the path:'{}' with context '{}'.", eventType,
+						visitContext.getNormalizedCurrentPath(), visitContext);
 				ThrowableFunction<C, FileVisitResult> function = entry.getValue();
 				result = function.apply(visitContext);
-				logger.info("[{}] Finished visiting the path:'{}' with result '{}'.", eventType, path.normalize(),
-						result);
+				logger.info("[{}] Finished visiting the path:'{}' with result '{}'.", eventType,
+						visitContext.getNormalizedCurrentPath(), result);
 				if (!ArrayUtils.contains(continueSubsequent, result)) {
 					return result;
 				}
